@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(
   cors({
-    origin: 'https://fidelthealexx.github.io/clann-zu-blog-frontend/',
+    origin: 'https://fidelthealexx.github.io',
   }),
 );
 app.use(express.json());
