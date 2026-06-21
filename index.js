@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
   'https://fidelthealexx.github.io',
-  'https://clann-zu.com/',
+  'https://clann-zu.com',
   'https://www.clann-zu.com',
 ];
 
