@@ -14,7 +14,7 @@ export const userModel = {
     const query = `
     INSERT INTO users (email, nickname, password_hash) 
     VALUES ($1, $2, $3) 
-    RETURNING id, email, nickname
+    RETURNING id, email, nickname, role
   `;
     const result = await pool.query(query, [
       email.toLowerCase(),
