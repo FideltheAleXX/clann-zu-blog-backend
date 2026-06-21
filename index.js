@@ -6,14 +6,31 @@ import cors from 'cors';
 import { postRouter } from './src/routes/routes.js';
 import { authRouter } from './src/routes/authRoutes.js';
 import './src/config/db.js';
+import { xmlRouter } from './src/routes/xmlRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const allowedOrigins = [
+  'https://fidelthealexx.github.io',
+  'https://clann-zu.com/',
+];
+
 app.use(
   cors({
-    origin: 'https://fidelthealexx.github.io',
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Blocked by CORS'));
+      }
+    },
+    credentials: true,
   }),
 );
+
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -22,6 +39,7 @@ app.get('/', (req, res) => {
 
 app.use('/posts', postRouter);
 app.use('/auth', authRouter);
+app.use('/sitemap.xml', xmlRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is ready on http://localhost:${PORT}`);

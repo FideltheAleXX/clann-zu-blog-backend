@@ -2,16 +2,15 @@ import express from 'express';
 
 export const xmlRouter = express.Router();
 // Маршрут для sitemap.xml
-xmlRouter.get('/sitemap.xml', async (req, res) => {
+xmlRouter.get('/', async (req, res) => {
   try {
     res.header('Content-Type', 'application/xml');
 
     const result = await db.query(
       'SELECT id FROM posts ORDER BY created_at DESC',
     );
-    const posts = result.rows; // Получаем массив объектов, например: [{id: 1}, {id: 2}]
+    const posts = result.rows;
 
-    // 3. Начинаем собирать XML-строку
     let xml = `<?xml version="1.0" encoding="UTF-8"?>`;
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
 
@@ -45,7 +44,6 @@ xmlRouter.get('/sitemap.xml', async (req, res) => {
         <priority>1.0</priority>
       </url>`;
 
-    // 4. Динамически перебираем альбомы из базы и добавляем их в карту сайта
     posts.forEach((post) => {
       xml += `
         <url>
