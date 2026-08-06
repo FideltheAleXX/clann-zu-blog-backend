@@ -1,21 +1,11 @@
-import pg from 'pg';
-import dotenv from 'dotenv';
-dotenv.config();
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+export { prisma };
 
-const { Pool } = pg;
-
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
+export const pool = {
+  query: () => {
+    throw new Error(
+      "Legacy 'pool.query' is not supported anymore. Import 'prisma' from '../config/db.js' and use Prisma Client API instead.",
+    );
   },
-});
-
-pool.on('connect', () => {
-  console.log('Successfully connect to PostgreSQL');
-});
-
-pool.on('error', (err) => {
-  console.error('Error in pool PostgreSQL:', err);
-  process.exit(-1);
-});
+};

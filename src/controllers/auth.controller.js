@@ -86,9 +86,13 @@ export const authController = {
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-        expiresIn: '7d',
-      });
+      const token = jwt.sign(
+        { id: user.id, role: user.role || 'user' },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: '7d',
+        },
+      );
 
       return res.status(200).json({
         message: 'Logged in successfully',

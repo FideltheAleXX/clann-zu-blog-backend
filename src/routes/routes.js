@@ -2,6 +2,7 @@ import express from 'express';
 import { postController } from '../controllers/post.controller.js';
 import { checkAuth } from '../middleware/checkAuth.js';
 import { checkRole } from '../middleware/checkRole.js';
+import { ROLES } from '../constants/roles.js';
 
 export const postRouter = express.Router();
 
@@ -12,7 +13,7 @@ postRouter.get('/', postController.getAllPosts);
 postRouter.post(
   '/',
   checkAuth,
-  checkRole('admin'),
+  checkRole(ROLES.ADMIN, ROLES.EDITOR),
   postController.createOnePost,
 );
 
