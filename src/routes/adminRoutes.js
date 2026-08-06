@@ -1,6 +1,7 @@
 import express from 'express';
 import { adminController } from '../controllers/admin.controller.js';
 import { ROLES } from '../constants/roles.js';
+import { checkRole } from '../middleware/checkRole.js';
 
 export const adminRouter = express.Router();
 
