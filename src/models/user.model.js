@@ -35,4 +35,16 @@ export const userModel = {
     });
     return user;
   },
+  getAll: async () => {
+    return prisma.users.findMany({
+      select: {
+        id: true,
+        email: true,
+        nickname: true,
+        role: true,
+        created_at: true,
+      },
+      orderBy: { id: 'desc' },
+    });
+  },
 };

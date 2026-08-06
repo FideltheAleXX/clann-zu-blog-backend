@@ -7,6 +7,8 @@ import { postRouter } from './src/routes/routes.js';
 import { authRouter } from './src/routes/authRoutes.js';
 import './src/config/db.js';
 import { xmlRouter } from './src/routes/xmlRoutes.js';
+import { userRouter } from './src/routes/userRoutes.js';
+import { adminRouter } from './src/routes/adminRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,6 +37,8 @@ app.get('/', (req, res) => {
 app.use('/posts', postRouter);
 app.use('/auth', authRouter);
 app.use('/sitemap.xml', xmlRouter);
+app.use('/users', userRouter);
+app.use('/admin', adminRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is ready on http://localhost:${PORT}`);
