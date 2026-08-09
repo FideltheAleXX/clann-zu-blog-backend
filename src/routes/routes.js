@@ -21,7 +21,7 @@ postRouter.post(
 postRouter.get('/:id', postController.getOnePost);
 
 // 4. PATCH
-postRouter.patch('/:id', postController.updateOnePost);
+postRouter.patch('/:id', checkAuth, postController.updateOnePost);
 
 // 5. DELETE
 postRouter.delete('/:id', postController.deleteOnePost);

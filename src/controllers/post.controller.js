@@ -1,4 +1,5 @@
 import { postModel } from '../models/post.model.js';
+import { ROLES } from '../constants/roles.js';
 
 export const postController = {
   getAllPosts: async (req, res) => {
@@ -51,17 +52,37 @@ export const postController = {
   },
   updateOnePost: async (req, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+
       const { id } = req.params;
       const post = await postModel.getById(id);
+
+      if (!post) {
+        return res.status(404).json({ message: 'Post not found' });
+      }
+
+      const currentUserId = Number(req.user.id);
+      const isOwner = Number(post.user_id) === currentUserId;
+      const userRole = req.user.role?.toLowerCase();
+      const isPrivileged = [ROLES.ADMIN, ROLES.EDITOR].includes(userRole);
+
+      if (!isOwner && !isPrivileged) {
+        return res.status(403).json({
+          message: 'You can edit only your own posts',
+        });
+      }
+
       const fieldsToUpdate = req.body;
       if (Object.keys(fieldsToUpdate).length === 0) {
-        return res.status(400).json({ message: 'Нет данных для обновления' });
+        return res.status(400).json({ message: 'No data for update' });
       }
 
       const updatedPost = await postModel.updatePost(id, fieldsToUpdate);
 
       if (!updatedPost) {
-        return res.status(404).json({ message: 'Пост не найден' });
+        return res.status(404).json({ message: 'Post not found' });
       }
 
       res.json(updatedPost);
