@@ -14,6 +14,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
+  //разработка
+  'http://localhost:5173',
   'https://clann-zu-react.vercel.app',
   'https://clann-zu.com',
   'https://www.clann-zu.com',
