@@ -3,9 +3,10 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+import './src/config/db.js';
+import path from 'path';
 import { postRouter } from './src/routes/routes.js';
 import { authRouter } from './src/routes/authRoutes.js';
-import './src/config/db.js';
 import { xmlRouter } from './src/routes/xmlRoutes.js';
 import { userRouter } from './src/routes/userRoutes.js';
 import { adminRouter } from './src/routes/adminRoutes.js';
@@ -29,6 +30,8 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(express.json());
 

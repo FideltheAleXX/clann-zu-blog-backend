@@ -17,3 +17,6 @@ authRouter.post(
 
 // 2. Log In
 authRouter.post('/login', validateRequest(loginSchema), authController.login);
+
+// 3. Log Out
+authRouter.post('/logout', authController.logout);

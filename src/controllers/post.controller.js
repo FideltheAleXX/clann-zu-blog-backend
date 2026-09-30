@@ -1,5 +1,8 @@
 import { postModel } from '../models/post.model.js';
 import { ROLES } from '../constants/roles.js';
+import path from 'path';
+import fs from 'fs';
+import sharp from 'sharp';
 
 export const postController = {
   getAllPosts: async (req, res) => {
@@ -27,8 +30,7 @@ export const postController = {
   },
   createOnePost: async (req, res) => {
     try {
-      const { title, content, img } = req.body;
-
+      const { title, content } = req.body;
       const author = req.user.id;
 
       if (!title || !content) {
@@ -37,16 +39,45 @@ export const postController = {
           .json({ message: 'Title and content are required fields' });
       }
 
+      let imgUrl = req.body.img || null;
+
+      if (req.file) {
+        const parsedPath = path.parse(req.file.path);
+        const optimizedFilename = `optimized-${parsedPath.name}.jpg`;
+        const optimizedPath = path.join('uploads', optimizedFilename);
+
+        try {
+          await sharp(req.file.path)
+            .resize(600, 600, {
+              fit: 'inside',
+              withoutEnlargement: true,
+            })
+            .jpeg({ quality: 80 })
+            .toFile(optimizedPath);
+
+          await fs.promises.unlink(req.file.path).catch((unlinkErr) => {
+            console.error('Failed to delete original file:', unlinkErr);
+          });
+          imgUrl = `/uploads/${optimizedFilename}`;
+        } catch (optimizeError) {
+          console.error('Image optimization failed:', optimizeError);
+          imgUrl = `/uploads/${req.file.filename}`;
+        }
+      }
+
       const newPost = await postModel.createPost({
         title,
         content,
         author,
-        img,
+        img: imgUrl,
       });
 
       res.status(201).json(newPost);
     } catch (err) {
       console.error(err.message);
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ message: err.message });
+      }
       res.status(500).json({ message: 'Server Error' });
     }
   },

@@ -3,6 +3,7 @@ import { postController } from '../controllers/post.controller.js';
 import { checkAuth } from '../middleware/checkAuth.js';
 import { checkRole } from '../middleware/checkRole.js';
 import { ROLES } from '../constants/roles.js';
+import { uploadSingle } from '../middleware/upload.js';
 
 export const postRouter = express.Router();
 
@@ -14,6 +15,7 @@ postRouter.post(
   '/',
   checkAuth,
   checkRole(ROLES.ADMIN, ROLES.EDITOR),
+  uploadSingle,
   postController.createOnePost,
 );
 

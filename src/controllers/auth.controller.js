@@ -108,4 +108,9 @@ export const authController = {
       return res.status(500).json({ message: 'Internal server error' });
     }
   },
+  logout: async (req, res) => {
+    return res.status(200).json({
+      message: 'Logged out successfully',
+    });
+  },
 };
