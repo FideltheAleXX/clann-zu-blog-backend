@@ -35,6 +35,38 @@ export const userModel = {
     });
     return user;
   },
+  findOrCreateGoogleUser: async (googleId, email) => {
+    const existingGoogleUser = await prisma.users.findUnique({
+      where: { google_id: googleId },
+    });
+
+    if (existingGoogleUser) {
+      return existingGoogleUser;
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const existingEmailUser = await prisma.users.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
+    });
+
+    if (existingEmailUser) {
+      if (existingEmailUser.google_id) {
+        throw new Error('Email is already linked to another Google account');
+      }
+
+      return prisma.users.update({
+        where: { id: existingEmailUser.id },
+        data: { google_id: googleId },
+      });
+    }
+
+    return prisma.users.create({
+      data: {
+        email: normalizedEmail,
+        google_id: googleId,
+      },
+    });
+  },
   getAll: async () => {
     return prisma.users.findMany({
       select: {

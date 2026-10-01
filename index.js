@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import 'dotenv/config';
+import { prisma } from './src/config/db.js';
 
 import express from 'express';
 import cors from 'cors';
@@ -45,6 +46,14 @@ app.use('/sitemap.xml', xmlRouter);
 app.use('/users', userRouter);
 app.use('/admin', adminRouter);
 
-app.listen(PORT, () => {
-  console.log(`Server is ready on http://localhost:${PORT}`);
-});
+try {
+  await prisma.$queryRaw`SELECT 1`;
+  console.log('Database connection is ready');
+
+  app.listen(PORT, () => {
+    console.log(`Server is ready on http://localhost:${PORT}`);
+  });
+} catch (error) {
+  console.error('Database connection failed:', error);
+  process.exit(1);
+}
