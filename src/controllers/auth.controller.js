@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import passport from 'passport';
 import { googleAuthConfigured } from '../config/passport.js';
 import { userModel } from '../models/user.model.js';
+import { sendWelcomeEmail } from '../sendEmail.js';
 
 const googleStateCookie = 'google_oauth_state';
 const googleCookieOptions = {
@@ -66,6 +67,12 @@ export const authController = {
         nickname,
         passwordHash,
       );
+
+      try {
+        await sendWelcomeEmail(newUser.email, newUser.nickname);
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+      }
 
       return res.status(201).json({
         message: 'User registred successfully.',

@@ -1,7 +1,6 @@
 import express from 'express';
 
 export const xmlRouter = express.Router();
-// Маршрут для sitemap.xml
 xmlRouter.get('/', async (req, res) => {
   try {
     res.header('Content-Type', 'application/xml');
