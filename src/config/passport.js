@@ -22,6 +22,10 @@ if (googleAuthConfigured) {
           const email = profile.emails?.[0]?.value;
           const emailVerified =
             profile._json?.email_verified ?? profile._json?.verified_email;
+          const displayName =
+            profile.displayName ||
+            profile.name?.givenName ||
+            email.split('@')[0];
 
           if (!email || emailVerified !== true) {
             return done(new Error('Google account must have a verified email'));
@@ -30,6 +34,7 @@ if (googleAuthConfigured) {
           const user = await userModel.findOrCreateGoogleUser(
             profile.id,
             email,
+            displayName,
           );
           return done(null, user);
         } catch (error) {

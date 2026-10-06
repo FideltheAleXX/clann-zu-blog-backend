@@ -122,6 +122,7 @@ export const authController = {
           id: user.id,
           email: user.email,
           nickname: user.nickname,
+          role: user.role,
         },
       });
     } catch (error) {
@@ -148,6 +149,7 @@ export const authController = {
     return passport.authenticate('google', {
       scope: ['profile', 'email'],
       state,
+      session: false,
     })(req, res, next);
   },
   googleCallback: (req, res, next) => {
@@ -155,11 +157,19 @@ export const authController = {
       return googleAuthUnavailable(res);
     }
 
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+
+    if (req.query.error) {
+      res.clearCookie(googleStateCookie, googleCookieOptions);
+      return res.redirect(`${clientUrl}/login?error=cancelled`);
+    }
+
     const stateCookie = req.headers.cookie
       ?.split(';')
       .map((cookie) => cookie.trim())
       .find((cookie) => cookie.startsWith(`${googleStateCookie}=`))
       ?.slice(googleStateCookie.length + 1);
+
     const returnedState = req.query.state;
 
     res.clearCookie(googleStateCookie, googleCookieOptions);
@@ -170,26 +180,22 @@ export const authController = {
       Buffer.byteLength(returnedState) !== Buffer.byteLength(stateCookie) ||
       !timingSafeEqual(Buffer.from(returnedState), Buffer.from(stateCookie))
     ) {
-      return res
-        .status(401)
-        .json({ message: 'Invalid Google authentication state' });
+      return res.redirect(`${clientUrl}/login?error=invalid_state`);
     }
 
     return passport.authenticate(
       'google',
       { session: false },
       (error, user) => {
-        if (error) {
+        if (error || !user) {
           console.error('Google authentication error:', error);
-          return res
-            .status(500)
-            .json({ message: 'Google authentication failed' });
+          res.redirect(`${clientUrl}/login?error=auth_failed`);
         }
 
-        if (!user) {
-          return res
-            .status(401)
-            .json({ message: 'Google authentication failed' });
+        if (user.isNewUser) {
+          sendWelcomeEmail(user.email, user.nickname).catch((err) => {
+            console.error('Failed to send welcome email to Google user:', err);
+          });
         }
 
         try {
@@ -199,20 +205,10 @@ export const authController = {
             { expiresIn: '7d' },
           );
 
-          return res.status(200).json({
-            message: 'Logged in successfully',
-            token,
-            user: {
-              id: user.id,
-              email: user.email,
-              nickname: user.nickname,
-            },
-          });
+          return res.redirect(`${clientUrl}/auth/callback?token=${token}`);
         } catch (tokenError) {
           console.error('Google token creation error:', tokenError);
-          return res
-            .status(500)
-            .json({ message: 'Google authentication failed' });
+          return res.redirect(`${clientUrl}/login?error=token_failed`);
         }
       },
     )(req, res, next);

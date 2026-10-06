@@ -11,19 +11,23 @@ export const postRouter = express.Router();
 postRouter.get('/', postController.getAllPosts);
 
 // 2. POST
-postRouter.post(
-  '/',
-  checkAuth,
-  checkRole(ROLES.ADMIN, ROLES.EDITOR),
-  uploadSingle,
-  postController.createOnePost,
-);
+postRouter.post('/', checkAuth, uploadSingle, postController.createOnePost);
 
 // 3. GET one post
 postRouter.get('/:id', postController.getOnePost);
 
 // 4. PATCH
-postRouter.patch('/:id', checkAuth, postController.updateOnePost);
+postRouter.patch(
+  '/:id',
+  checkAuth,
+  checkRole(ROLES.ADMIN, ROLES.EDITOR),
+  postController.updateOnePost,
+);
 
 // 5. DELETE
-postRouter.delete('/:id', postController.deleteOnePost);
+postRouter.delete(
+  '/:id',
+  checkAuth,
+  checkRole(ROLES.ADMIN),
+  postController.deleteOnePost,
+);

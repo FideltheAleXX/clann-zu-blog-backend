@@ -35,13 +35,13 @@ export const userModel = {
     });
     return user;
   },
-  findOrCreateGoogleUser: async (googleId, email) => {
+  findOrCreateGoogleUser: async (googleId, email, displayName) => {
     const existingGoogleUser = await prisma.users.findUnique({
       where: { google_id: googleId },
     });
 
     if (existingGoogleUser) {
-      return existingGoogleUser;
+      return { ...existingGoogleUser, isNewUser: false };
     }
 
     const normalizedEmail = email.toLowerCase().trim();
@@ -53,19 +53,30 @@ export const userModel = {
       if (existingEmailUser.google_id) {
         throw new Error('Email is already linked to another Google account');
       }
-
-      return prisma.users.update({
+      const updatedUser = await prisma.users.update({
         where: { id: existingEmailUser.id },
         data: { google_id: googleId },
       });
+      return { ...updatedUser, isNewUser: false };
     }
 
-    return prisma.users.create({
+    let nickname = (displayName || normalizedEmail.split('@')[0]).trim();
+    const existingNick = await prisma.users.findFirst({
+      where: { nickname: { equals: nickname, mode: 'insensitive' } },
+    });
+    if (existingNick) {
+      nickname = `${nickname}_${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+
+    const newUser = await prisma.users.create({
       data: {
         email: normalizedEmail,
         google_id: googleId,
+        nickname,
       },
     });
+
+    return { ...newUser, isNewUser: true };
   },
   getAll: async () => {
     return prisma.users.findMany({

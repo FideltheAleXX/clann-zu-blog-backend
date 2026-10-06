@@ -2,11 +2,13 @@ import express from 'express';
 import { adminController } from '../controllers/admin.controller.js';
 import { ROLES } from '../constants/roles.js';
 import { checkRole } from '../middleware/checkRole.js';
+import { checkAuth } from '../middleware/checkAuth.js';
 
 export const adminRouter = express.Router();
 
 adminRouter.put(
   '/users/:userId/role',
+  checkAuth,
   checkRole(ROLES.ADMIN),
   adminController.makeEditor,
 );

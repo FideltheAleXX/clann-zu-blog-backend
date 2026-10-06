@@ -94,18 +94,12 @@ export const postController = {
         return res.status(404).json({ message: 'Post not found' });
       }
 
-      const currentUserId = Number(req.user.id);
-      const isOwner = Number(post.user_id) === currentUserId;
-      const userRole = req.user.role?.toLowerCase();
-      const isPrivileged = [ROLES.ADMIN, ROLES.EDITOR].includes(userRole);
+      const { title, content, img } = req.body;
+      const fieldsToUpdate = {};
+      if (title !== undefined) fieldsToUpdate.title = title;
+      if (content !== undefined) fieldsToUpdate.content = content;
+      if (img !== undefined) fieldsToUpdate.img = img;
 
-      if (!isOwner && !isPrivileged) {
-        return res.status(403).json({
-          message: 'You can edit only your own posts',
-        });
-      }
-
-      const fieldsToUpdate = req.body;
       if (Object.keys(fieldsToUpdate).length === 0) {
         return res.status(400).json({ message: 'No data for update' });
       }

@@ -9,7 +9,7 @@ export const checkRole = (...allowedRoles) => {
 
     if (!roles.includes(userRole)) {
       return res.status(403).json({
-        error: 'Forbidden. Only admins or editors can access this resource.',
+        error: 'Forbidden. You do not have permission to perform this action.',
       });
     }
 
