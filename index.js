@@ -9,7 +9,6 @@ import path from 'path';
 import { postRouter } from './src/routes/routes.js';
 import { authRouter } from './src/routes/authRoutes.js';
 import { xmlRouter } from './src/routes/xmlRoutes.js';
-import { userRouter } from './src/routes/userRoutes.js';
 import { adminRouter } from './src/routes/adminRoutes.js';
 
 const app = express();
