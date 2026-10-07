@@ -94,6 +94,12 @@ export const authController = {
 
       const user = await userModel.getUserByEmailOrNickname(loginIdentifier);
 
+      if (user.status === 'banned') {
+        return res
+          .status(403)
+          .json({ message: 'Your account has been suspended' });
+      }
+
       if (!user) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
@@ -189,7 +195,11 @@ export const authController = {
       (error, user) => {
         if (error || !user) {
           console.error('Google authentication error:', error);
-          res.redirect(`${clientUrl}/login?error=auth_failed`);
+          return res.redirect(`${clientUrl}/login?error=auth_failed`);
+        }
+
+        if (user.status === 'banned') {
+          return res.redirect(`${clientUrl}/login?error=banned`);
         }
 
         if (user.isNewUser) {

@@ -2,8 +2,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import jwt from 'jsonwebtoken';
+import { prisma } from '../config/db.js';
 
-export const checkAuth = (req, res, next) => {
+export const checkAuth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -17,7 +18,20 @@ export const checkAuth = (req, res, next) => {
 
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    req.user = { id: decoded.id, role: decoded.role || 'user' };
+    const user = await prisma.users.findUnique({
+      where: { id: decoded.id },
+      select: { id: true, role: true, status: true },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    if (user.status === 'banned') {
+      return res.status(403).json({ message: 'Account is banned' });
+    }
+
+    req.user = user;
 
     next();
   } catch (error) {

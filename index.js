@@ -43,7 +43,6 @@ app.get('/', (req, res) => {
 app.use('/posts', postRouter);
 app.use('/auth', authRouter);
 app.use('/sitemap.xml', xmlRouter);
-app.use('/users', userRouter);
 app.use('/admin', adminRouter);
 
 try {
